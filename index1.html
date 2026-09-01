@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Hywave BSA-AIR Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap">
+</head>
+<body>
+<style>
+:root{
+  --ground:#F4F6F9; --surface:#FFFFFF; --surface-2:#EDF0F5;
+  --line:#D9DFE8; --line-strong:#BCC5D3;
+  --ink:#101725; --ink-2:#3F4A5C; --ink-3:#6C7789;
+  --cap:#2E5AAC;   --cap-soft:rgba(46,90,172,.12);
+  --disc:#C07A23;  --disc-soft:rgba(192,122,35,.14);
+  --floor:#A0325E; --floor-soft:rgba(160,50,94,.13);
+  --good:#2F7D5B;  --good-soft:rgba(47,125,91,.13);
+  --warn:#A8562A;  --warn-soft:rgba(168,86,42,.13);
+  --band:rgba(16,23,37,.055); --grid:rgba(16,23,37,.09);
+  --shadow:0 1px 2px rgba(16,23,37,.05), 0 8px 24px -14px rgba(16,23,37,.28);
+  --track:#D3DAE5;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E121A; --surface:#161B25; --surface-2:#1D2430;
+    --line:#2A3140; --line-strong:#3A4354;
+    --ink:#E7EBF2; --ink-2:#B3BCCB; --ink-3:#7F8A9C;
+    --cap:#5E88E0;   --cap-soft:rgba(94,136,224,.16);
+    --disc:#C0822E;  --disc-soft:rgba(192,130,46,.18);
+    --floor:#BC3D72; --floor-soft:rgba(188,61,114,.18);
+    --good:#4FA57C;  --good-soft:rgba(79,165,124,.16);
+    --warn:#D08A56;  --warn-soft:rgba(208,138,86,.15);
+    --band:rgba(231,235,242,.06); --grid:rgba(231,235,242,.10);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -16px rgba(0,0,0,.8);
+    --track:#2E3646;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E121A; --surface:#161B25; --surface-2:#1D2430;
+  --line:#2A3140; --line-strong:#3A4354;
+  --ink:#E7EBF2; --ink-2:#B3BCCB; --ink-3:#7F8A9C;
+  --cap:#5E88E0;   --cap-soft:rgba(94,136,224,.16);
+  --disc:#C0822E;  --disc-soft:rgba(192,130,46,.18);
+  --floor:#BC3D72; --floor-soft:rgba(188,61,114,.18);
+  --good:#4FA57C;  --good-soft:rgba(79,165,124,.16);
+  --warn:#D08A56;  --warn-soft:rgba(208,138,86,.15);
+  --band:rgba(231,235,242,.06); --grid:rgba(231,235,242,.10);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -16px rgba(0,0,0,.8);
+  --track:#2E3646;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Instrument Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1220px;margin:0 auto;padding:34px 24px 72px}
+
+.mast{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;
+  padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:26px}
+.mast h1{font-family:"Instrument Serif",Georgia,"Times New Roman",serif;font-weight:400;
+  font-size:clamp(30px,4.4vw,46px);line-height:1.02;margin:6px 0 0;letter-spacing:-.01em;text-wrap:balance}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0}
+.mast p.sub{margin:8px 0 0;color:var(--ink-2);max-width:58ch;font-size:14.5px}
+.theme-btn{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);
+  border-radius:999px;padding:7px 14px;cursor:pointer;transition:border-color .15s,color .15s;white-space:nowrap}
+.theme-btn:hover{border-color:var(--line-strong);color:var(--ink)}
+.theme-btn:focus-visible{outline:2px solid var(--cap);outline-offset:2px}
+
+.shell{display:grid;grid-template-columns:308px minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:940px){.shell{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow)}
+.rail{position:sticky;top:20px;padding:4px 0 8px}
+@media (max-width:940px){.rail{position:static}}
+
+.grp{padding:16px 18px;border-bottom:1px solid var(--line)}
+.grp:last-child{border-bottom:none}
+.grp h2{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;font-weight:600;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);margin:0 0 14px}
+.fld{margin-bottom:15px}
+.fld:last-child{margin-bottom:2px}
+.fld-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.fld-top label{font-size:13px;color:var(--ink-2)}
+.fld-top output{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:13px;font-weight:500;
+  color:var(--ink);font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;
+  cursor:pointer;display:block;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:var(--track)}
+input[type=range]::-moz-range-track{height:3px;border-radius:2px;background:var(--track)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--surface);border:2px solid var(--cap);margin-top:-6px;transition:transform .12s}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--surface);
+  border:2px solid var(--cap)}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.15)}
+input[type=range]:focus-visible{outline:2px solid var(--cap);outline-offset:4px;border-radius:4px}
+
+.reset{width:100%;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);
+  border-radius:7px;padding:9px;cursor:pointer;transition:border-color .15s,color .15s}
+.reset:hover{border-color:var(--line-strong);color:var(--ink)}
+.reset:focus-visible{outline:2px solid var(--cap);outline-offset:2px}
+
+.stack{display:flex;flex-direction:column;gap:24px;min-width:0}
+.hero{padding:24px 26px;display:grid;grid-template-columns:minmax(0,auto) 1fr;gap:28px;align-items:center}
+@media (max-width:640px){.hero{grid-template-columns:1fr;gap:18px}}
+.hero .figure{display:flex;flex-direction:column;gap:3px}
+.hero .k{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3)}
+.hero .v{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(52px,8vw,76px);
+  line-height:.92;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.hero .note{color:var(--ink-2);font-size:13.5px;max-width:42ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:9px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11px;letter-spacing:.05em;padding:5px 11px;border-radius:999px;border:1px solid}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.chip.good{color:var(--good);border-color:var(--good);background:var(--good-soft)}
+.chip.warn{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)}
+.chip.cap{color:var(--cap);border-color:var(--cap);background:var(--cap-soft)}
+.chip.disc{color:var(--disc);border-color:var(--disc);background:var(--disc-soft)}
+.chip.floor{color:var(--floor);border-color:var(--floor);background:var(--floor-soft)}
+
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;padding:18px 22px 0}
+.sec-head h2{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:23px;margin:0;letter-spacing:-.005em}
+.sec-head .hint{font-size:12.5px;color:var(--ink-3);max-width:46ch}
+
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:12px 22px 0;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:16px;height:2px;border-radius:1px;display:block}
+.legend i.dash{height:0;border-top:2px dashed var(--ink-3);width:16px}
+.legend i.swatch{height:9px;border-radius:2px;background:var(--band);border:1px solid var(--line-strong)}
+
+.chartwrap{position:relative;padding:10px 14px 16px}
+canvas{display:block;width:100%;height:330px;touch-action:none}
+.tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;background:var(--surface);
+  border:1px solid var(--line-strong);border-radius:7px;box-shadow:var(--shadow);padding:9px 11px;
+  min-width:164px;z-index:5}
+.tip .t{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
+.tip .row{display:flex;justify-content:space-between;gap:14px;font-size:12.5px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.tip .row b{font-weight:600}
+
+.tablewrap{overflow-x:auto;padding:6px 22px 20px}
+table{border-collapse:collapse;width:100%;min-width:540px;font-variant-numeric:tabular-nums}
+th,td{padding:9px 10px;text-align:right;font-size:13px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+thead th{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);
+  border-bottom:1px solid var(--line-strong);white-space:nowrap}
+tbody td{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;color:var(--ink-2)}
+tbody td:first-child{font-family:"Instrument Sans",sans-serif;font-size:13.5px;color:var(--ink)}
+tr.mark td{background:var(--cap-soft);color:var(--ink);font-weight:500}
+tr.mark td:first-child{font-weight:600}
+tfoot td{font-weight:600;color:var(--ink);border-top:1px solid var(--line-strong);border-bottom:none}
+.bar{display:inline-block;height:8px;border-radius:2px;background:var(--cap);vertical-align:middle;
+  margin-right:7px;min-width:2px}
+
+.thresholds{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:1px;
+  background:var(--line);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.th-cell{background:var(--surface);padding:16px 18px}
+.th-cell .k{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:7px}
+.th-cell .v{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:20px;font-weight:500;
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.th-cell .d{font-size:12.5px;color:var(--ink-2);margin-top:5px;line-height:1.45}
+
+.flag{margin:0 22px 18px;padding:13px 16px;border-left:3px solid var(--warn);background:var(--warn-soft);
+  border-radius:0 7px 7px 0;font-size:13px;color:var(--ink-2)}
+.flag b{color:var(--ink)}
+
+.explain{padding:20px 22px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px}
+.explain h3{font-size:13.5px;margin:0 0 6px;color:var(--ink)}
+.explain p{margin:0;color:var(--ink-2);font-size:13.5px;line-height:1.6}
+.explain code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;background:var(--surface-2);
+  padding:1.5px 5px;border-radius:4px;color:var(--ink)}
+
+.foot{margin-top:30px;padding-top:18px;border-top:1px solid var(--line);font-size:12.5px;
+  color:var(--ink-3);max-width:80ch}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+
+  <header class="mast">
+    <div>
+      <p class="eyebrow">Hywave · BSA-AIR · €5,000,000</p>
+      <h1>Hywave BSA-AIR Model</h1>
+      <p class="sub">Where the BSA-AIR investors land after the next financing round, and which of the three pricing mechanisms — floor, discount or cap — decides it.</p>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button">Theme</button>
+  </header>
+
+  <div class="shell">
+
+    <aside class="panel rail">
+      <div class="grp">
+        <h2>BSA-AIR terms</h2>
+        <div class="fld">
+          <div class="fld-top"><label for="i_amount">Total issue amount</label><output id="o_amount"></output></div>
+          <input type="range" id="i_amount" min="1000000" max="15000000" step="250000" value="5000000">
+        </div>
+        <div class="fld">
+          <div class="fld-top"><label for="i_cap">Valuation cap</label><output id="o_cap"></output></div>
+          <input type="range" id="i_cap" min="5000000" max="60000000" step="500000" value="20000000">
+        </div>
+        <div class="fld">
+          <div class="fld-top"><label for="i_floor">Valuation floor</label><output id="o_floor"></output></div>
+          <input type="range" id="i_floor" min="0" max="40000000" step="500000" value="15000000">
+        </div>
+        <div class="fld">
+          <div class="fld-top"><label for="i_disc">Discount</label><output id="o_disc"></output></div>
+          <input type="range" id="i_disc" min="0" max="40" step="1" value="15">
+        </div>
+      </div>
+
+      <div class="grp">
+        <h2>Next round</h2>
+        <div class="fld">
+          <div class="fld-top"><label for="i_pre">Round pre-money</label><output id="o_pre"></output></div>
+          <input type="range" id="i_pre" min="5000000" max="150000000" step="250000" value="40000000">
+        </div>
+        <div class="fld">
+          <div class="fld-top"><label for="i_raise">New money raised</label><output id="o_raise"></output></div>
+          <input type="range" id="i_raise" min="1000000" max="40000000" step="500000" value="10000000">
+        </div>
+        <div class="fld">
+          <div class="fld-top"><label for="i_pool">BSPCE increase</label><output id="o_pool"></output></div>
+          <input type="range" id="i_pool" min="0" max="15" step="1" value="5">
+        </div>
+      </div>
+
+      <div class="grp">
+        <h2>Capital before the issue</h2>
+        <div class="fld">
+          <div class="fld-top"><label for="i_fou">Founder shares</label><output id="o_fou"></output></div>
+          <input type="range" id="i_fou" min="100000" max="5000000" step="50000" value="900000">
+        </div>
+        <div class="fld">
+          <div class="fld-top"><label for="i_pl0">Existing BSPCE</label><output id="o_pl0"></output></div>
+          <input type="range" id="i_pl0" min="0" max="1000000" step="25000" value="100000">
+        </div>
+      </div>
+
+      <div class="grp">
+        <h2>Target</h2>
+        <div class="fld">
+          <div class="fld-top"><label for="i_tgt">Ownership target</label><output id="o_tgt"></output></div>
+          <input type="range" id="i_tgt" min="5" max="40" step="0.5" value="20">
+        </div>
+        <div class="fld">
+          <div class="fld-top"><label for="i_tol">Tolerance</label><output id="o_tol"></output></div>
+          <input type="range" id="i_tol" min="0.5" max="6" step="0.5" value="2">
+        </div>
+        <button class="reset" id="resetBtn" type="button">Reset to the term sheet</button>
+      </div>
+    </aside>
+
+    <div class="stack">
+
+      <section class="panel hero">
+        <div class="figure">
+          <span class="k">Ownership after the round</span>
+          <span class="v" id="heroPct">—</span>
+        </div>
+        <div>
+          <div class="chips" id="chips"></div>
+          <p class="note" id="heroNote"></p>
+        </div>
+      </section>
+
+      <section class="thresholds" id="thresholds"></section>
+
+      <section class="panel">
+        <div class="sec-head">
+          <h2>Ownership across every round valuation</h2>
+          <p class="hint">New money and BSA-AIR terms held constant. Hover the curve to read any point.</p>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--floor)"></i>Floor governs</span>
+          <span><i style="background:var(--disc)"></i>Discount governs</span>
+          <span><i style="background:var(--cap)"></i>Cap governs</span>
+          <span><i class="dash"></i>Pivots</span>
+          <span><i class="swatch"></i>Target band</span>
+        </div>
+        <div class="chartwrap">
+          <canvas id="chart"></canvas>
+          <div class="tip" id="tip"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="sec-head">
+          <h2>Pro-forma capitalization table</h2>
+          <p class="hint" id="ctHint"></p>
+        </div>
+        <div id="floorFlag"></div>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Holder</th><th>Shares</th><th>Before round</th><th>After round</th></tr></thead>
+            <tbody id="ctBody"></tbody>
+            <tfoot id="ctFoot"></tfoot>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="sec-head">
+          <h2>Valuation scenarios</h2>
+          <p class="hint">Round pre-money as a share of the valuation that hits the target exactly.</p>
+        </div>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Scenario</th><th>Pre-money</th><th>Post-money</th><th>Dilution</th><th>Governs</th><th>Ownership</th></tr></thead>
+            <tbody id="scBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="explain">
+          <div>
+            <h3>Why the cap fixes the percentage</h3>
+            <p>Where the cap governs, holders own <code>amount ÷ cap</code> of everything except the new money — later instruments and the BSPCE increase dilute the founders, not them. Only the round itself dilutes.</p>
+          </div>
+          <div>
+            <h3>What the floor is for</h3>
+            <p>Below the floor pivot the warrants convert at the floor whatever the round pays. It bounds investor ownership in a down round, which is what keeps the band intact at the low end — and it is why the curve turns twice rather than once.</p>
+          </div>
+          <div>
+            <h3>The trade-off to disclose</h3>
+            <p>In a hard down round the floor can push the warrant price above the round price, so the earlier investor pays more per share than the later one. Watch for the amber flag above the capitalization table.</p>
+          </div>
+        </div>
+      </section>
+
+      <p class="foot">Indicative model, not legal, tax or investment advice. The BSA-AIR is a French-law instrument: it carries a long-stop date, it grants no claim on a dissolution, and it offers no cash-out branch on a liquidity event. Confirm every figure against Hywave's actual capitalization table, and the structure with French counsel, before use.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  try { var saved = localStorage.getItem('hywave-theme');
+        if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved); } catch(e){}
+  function current(){
+    var a = root.getAttribute('data-theme');
+    return a ? a : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  }
+  btn.addEventListener('click', function(){
+    var next = current() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('hywave-theme', next); } catch(e){}
+    draw();
+  });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+
+  var DEF = { amount:5000000, cap:20000000, floor:15000000, disc:15, pre:40000000,
+              raise:10000000, pool:5, fou:900000, pl0:100000, tgt:20, tol:2 };
+  var ids = Object.keys(DEF), el = {};
+  ids.forEach(function(k){ el[k] = document.getElementById('i_' + k); el['o_' + k] = document.getElementById('o_' + k); });
+  function v(k){ return +el[k].value; }
+
+  var eur0 = new Intl.NumberFormat('en-IE', {style:'currency', currency:'EUR', maximumFractionDigits:0});
+  var eur4 = new Intl.NumberFormat('en-IE', {style:'currency', currency:'EUR', minimumFractionDigits:4, maximumFractionDigits:4});
+  var num0 = new Intl.NumberFormat('en-IE', {maximumFractionDigits:0});
+  function money(x){ return eur0.format(Math.round(x)); }
+  function share(x){ return isFinite(x) ? eur4.format(x) : '—'; }
+  function compact(x){
+    if (x >= 1e9) return '€' + (x/1e9).toFixed(x >= 1e10 ? 0 : 1) + 'B';
+    if (x >= 1e6) return '€' + (x/1e6).toFixed(x >= 1e8 ? 0 : 1) + 'M';
+    if (x >= 1e3) return '€' + Math.round(x/1e3) + 'K';
+    return '€' + Math.round(x);
+  }
+  function pct(x, d){ return (x*100).toFixed(d === undefined ? 2 : d) + '%'; }
+
+  function params(){
+    return { amount:v('amount'), cap:v('cap'), floor:Math.min(v('floor'), v('cap')), disc:v('disc')/100,
+             pre:v('pre'), raise:v('raise'), pool:v('pool')/100, fou:v('fou'), pl0:v('pl0'),
+             tgt:v('tgt')/100, tol:v('tol')/100 };
+  }
+
+  /* conversion valuation: discounted round value, bounded by floor and cap */
+  function convVal(pre, p){ return Math.max(p.floor, Math.min(p.cap, (1 - p.disc) * pre)); }
+  function ownership(pre, p){ return (p.amount / convVal(pre, p)) * pre / (pre + p.raise); }
+  function regime(pre, p){
+    var d = (1 - p.disc) * pre;
+    if (d >= p.cap) return 'Cap';
+    if (d <= p.floor) return 'Floor';
+    return 'Discount';
+  }
+  function regimeVar(g){ return g === 'Cap' ? 'var(--cap)' : (g === 'Floor' ? 'var(--floor)' : 'var(--disc)'); }
+  function regimeCss(g){ return g === 'Cap' ? 'cap' : (g === 'Floor' ? 'floor' : 'disc'); }
+
+  function model(p){
+    var vPost = p.pre + p.raise, dil = p.raise / vPost;
+    var V = convVal(p.pre, p), x = p.amount / V;
+    var poolOfCC = p.pool / (1 - dil), existing = p.fou + p.pl0;
+    var denom = 1 - x - poolOfCC, valid = denom > 0.02 && isFinite(x) && V > 0;
+    var CC = valid ? existing / denom : NaN;
+    var airSh = x * CC, poolSh = poolOfCC * CC, total = CC / (1 - dil), newSh = total - CC;
+    var pps = p.pre / CC;
+    return { valid:valid, dil:dil, V:V, x:x, gov:regime(p.pre, p), CC:CC, airSh:airSh,
+             poolSh:poolSh, total:total, newSh:newSh, pps:pps,
+             capPrice:p.cap / CC, discPrice:(1 - p.disc) * pps, floorPrice:p.floor / CC,
+             conv:V / CC, final:x * (1 - dil) };
+  }
+
+  var cv = document.getElementById('chart'), ctx = cv.getContext('2d'), tip = document.getElementById('tip');
+  var plot = null, hoverX = null;
+  function css(n){ return getComputedStyle(root).getPropertyValue(n).trim(); }
+
+  function draw(){
+    var p = params();
+    var w = cv.clientWidth, h = cv.clientHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = w * dpr; cv.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    var C = { cap:css('--cap'), disc:css('--disc'), floor:css('--floor'), ink3:css('--ink-3'),
+              grid:css('--grid'), band:css('--band'), surf:css('--surface'), line:css('--line-strong') };
+
+    var padL = 52, padR = 16, padT = 18, padB = 30;
+    var pivCap   = p.disc >= 1 ? Infinity : p.cap / (1 - p.disc);
+    var pivFloor = p.disc >= 1 ? Infinity : p.floor / (1 - p.disc);
+
+    var x0 = Math.max(3e6, p.raise * 0.35, pivFloor * 0.45);
+    var x1 = Math.max(p.pre * 1.8, pivCap * 2.6, 60e6);
+
+    var ys = [], N = 240;
+    for (var i = 0; i <= N; i++) ys.push(ownership(x0 + (x1 - x0) * i / N, p));
+    var yMax = Math.max.apply(null, ys.concat([p.tgt + p.tol]));
+    yMax = Math.min(yMax * 1.12, Math.max(p.tgt * 2.4, p.tgt + p.tol + 0.05), 0.95);
+
+    function px(val){ return padL + (val - x0) / (x1 - x0) * (w - padL - padR); }
+    function py(val){ return padT + (1 - val / yMax) * (h - padT - padB); }
+    plot = { p:p, x0:x0, x1:x1, px:px, py:py, padL:padL, padR:padR, w:w, h:h };
+
+    var bTop = py(Math.min(p.tgt + p.tol, yMax)), bBot = py(Math.max(p.tgt - p.tol, 0));
+    ctx.fillStyle = C.band; ctx.fillRect(padL, bTop, w - padL - padR, bBot - bTop);
+
+    ctx.strokeStyle = C.grid; ctx.lineWidth = 1; ctx.fillStyle = C.ink3;
+    ctx.font = '11px "IBM Plex Mono", ui-monospace, monospace';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    var step = yMax > 0.6 ? 0.1 : (yMax > 0.3 ? 0.05 : 0.02);
+    for (var g = 0; g <= yMax + 1e-9; g += step){
+      var Y = Math.round(py(g)) + .5;
+      ctx.beginPath(); ctx.moveTo(padL, Y); ctx.lineTo(w - padR, Y); ctx.stroke();
+      ctx.fillText((g*100).toFixed(0) + '%', padL - 9, Y);
+    }
+
+    ctx.textBaseline = 'top';
+    var ticks = 5;
+    for (var t = 0; t <= ticks; t++){
+      var xv = x0 + (x1 - x0) * t / ticks;
+      ctx.textAlign = t === 0 ? 'left' : (t === ticks ? 'right' : 'center');
+      ctx.fillText(compact(xv), px(xv), h - padB + 9);
+    }
+    ctx.textAlign = 'center';
+
+    var lastLabelEnd = -1e9, lastRow = 0;
+    function pivot(val, label){
+      if (!(val > x0 && val < x1)) return;
+      ctx.save(); ctx.setLineDash([4,4]); ctx.strokeStyle = C.ink3; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(px(val), padT); ctx.lineTo(px(val), h - padB); ctx.stroke();
+      ctx.restore();
+      ctx.save(); ctx.fillStyle = C.ink3; ctx.textBaseline = 'top';
+      ctx.font = '10px "IBM Plex Mono", ui-monospace, monospace';
+      var text = label + ' ' + compact(val);
+      var tw = ctx.measureText(text).width;
+      var lx = px(val) + 6, right = false;
+      if (lx + tw > w - padR){ right = true; lx = px(val) - 6; }
+      var start = right ? lx - tw : lx;
+      /* stack onto a second line when it would collide with the previous label */
+      var row = (start < lastLabelEnd + 6 && lastRow === 0) ? 1 : 0;
+      ctx.textAlign = right ? 'right' : 'left';
+      ctx.fillText(text, lx, padT + 1 + row * 13);
+      lastLabelEnd = start + tw; lastRow = row;
+      ctx.restore();
+    }
+    pivot(pivFloor, 'FLOOR');
+    pivot(pivCap, 'CAP');
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(padL, padT - 2, w - padL - padR, h - padT - padB + 2); ctx.clip();
+    ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    function seg(from, to, color){
+      from = Math.max(from, x0); to = Math.min(to, x1);
+      if (to <= from) return;
+      ctx.strokeStyle = color; ctx.beginPath();
+      for (var k = 0; k <= 180; k++){
+        var xv = from + (to - from) * k / 180, X = px(xv), Y = py(ownership(xv, p));
+        k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+      }
+      ctx.stroke();
+    }
+    seg(x0, pivFloor, C.floor);
+    seg(pivFloor, pivCap, C.disc);
+    seg(pivCap, x1, C.cap);
+    ctx.restore();
+
+    if (p.pre >= x0 && p.pre <= x1){
+      var cx = px(p.pre), cy = py(ownership(p.pre, p));
+      ctx.save(); ctx.setLineDash([3,3]); ctx.strokeStyle = C.line; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, h - padB); ctx.stroke(); ctx.restore();
+      var g0 = regime(p.pre, p);
+      ctx.fillStyle = C.surf; ctx.beginPath(); ctx.arc(cx, cy, 6.5, 0, 6.2832); ctx.fill();
+      ctx.fillStyle = g0 === 'Cap' ? C.cap : (g0 === 'Floor' ? C.floor : C.disc);
+      ctx.beginPath(); ctx.arc(cx, cy, 4.5, 0, 6.2832); ctx.fill();
+      ctx.strokeStyle = C.surf; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(cx, cy, 4.5, 0, 6.2832); ctx.stroke();
+    }
+
+    if (hoverX !== null && hoverX >= x0 && hoverX <= x1){
+      var hx = px(hoverX), hy = py(ownership(hoverX, p)), gh = regime(hoverX, p);
+      ctx.strokeStyle = C.line; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(hx, padT); ctx.lineTo(hx, h - padB); ctx.stroke();
+      ctx.fillStyle = gh === 'Cap' ? C.cap : (gh === 'Floor' ? C.floor : C.disc);
+      ctx.beginPath(); ctx.arc(hx, hy, 4, 0, 6.2832); ctx.fill();
+      ctx.strokeStyle = C.surf; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(hx, hy, 4, 0, 6.2832); ctx.stroke();
+    }
+  }
+
+  function moveTip(e){
+    if (!plot) return;
+    var rect = cv.getBoundingClientRect();
+    var mx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    if (mx < plot.padL || mx > plot.w - plot.padR){ hideTip(); return; }
+    hoverX = plot.x0 + (mx - plot.padL) / (plot.w - plot.padL - plot.padR) * (plot.x1 - plot.x0);
+    var own = ownership(hoverX, plot.p), gov = regime(hoverX, plot.p);
+    tip.innerHTML = '<div class="t">Round pre-money</div>' +
+      '<div class="row"><span>Pre-money</span><b>' + compact(hoverX) + '</b></div>' +
+      '<div class="row"><span>Post-money</span><b>' + compact(hoverX + plot.p.raise) + '</b></div>' +
+      '<div class="row"><span>Ownership</span><b>' + pct(own) + '</b></div>' +
+      '<div class="row"><span>Governs</span><b style="color:' + regimeVar(gov) + '">' + gov + '</b></div>';
+    tip.style.opacity = '1';
+    var tw = tip.offsetWidth, left = mx + 16;
+    if (left + tw > plot.w - 4) left = mx - tw - 16;
+    tip.style.left = Math.max(4, left) + 'px';
+    tip.style.top = '20px';
+    draw();
+  }
+  function hideTip(){ hoverX = null; tip.style.opacity = '0'; draw(); }
+  cv.addEventListener('mousemove', moveTip);
+  cv.addEventListener('mouseleave', hideTip);
+  cv.addEventListener('touchmove', function(e){ moveTip(e); }, {passive:true});
+  cv.addEventListener('touchend', hideTip);
+
+  function render(){
+    var p = params(), m = model(p);
+
+    el.o_amount.textContent = compact(p.amount);
+    el.o_cap.textContent    = compact(p.cap);
+    el.o_floor.textContent  = p.floor > 0 ? compact(p.floor) : 'none';
+    el.o_disc.textContent   = (p.disc*100).toFixed(0) + '%';
+    el.o_pre.textContent    = compact(p.pre);
+    el.o_raise.textContent  = compact(p.raise);
+    el.o_pool.textContent   = (p.pool*100).toFixed(0) + '%';
+    el.o_fou.textContent    = num0.format(p.fou);
+    el.o_pl0.textContent    = num0.format(p.pl0);
+    el.o_tgt.textContent    = (p.tgt*100).toFixed(1) + '%';
+    el.o_tol.textContent    = '±' + (p.tol*100).toFixed(1) + ' pts';
+
+    var hero = document.getElementById('heroPct'), chips = document.getElementById('chips'),
+        note = document.getElementById('heroNote');
+
+    if (!m.valid){
+      hero.textContent = '—';
+      chips.innerHTML = '<span class="chip warn"><span class="dot"></span>Impossible structure</span>';
+      note.textContent = 'The warrants and the BSPCE increase together claim the whole company. Raise the cap or lower the BSPCE increase.';
+      ['ctBody','ctFoot','scBody','thresholds','floorFlag'].forEach(function(id){
+        document.getElementById(id).innerHTML = '';
+      });
+      draw(); return;
+    }
+
+    hero.textContent = pct(m.final);
+    var inBand = m.final >= p.tgt - p.tol - 1e-9 && m.final <= p.tgt + p.tol + 1e-9;
+    chips.innerHTML =
+      '<span class="chip ' + regimeCss(m.gov) + '"><span class="dot"></span>' + m.gov + ' governs</span>' +
+      '<span class="chip ' + (inBand ? 'good' : 'warn') + '"><span class="dot"></span>' +
+      (inBand ? 'Within target' : (m.final > p.tgt ? 'Above target band' : 'Below target band')) + '</span>';
+
+    var effDisc = 1 - m.conv / m.pps;
+    note.textContent = 'Warrants convert at ' + share(m.conv) + ' per share against a round price of ' +
+      share(m.pps) + ' — an effective ' + (effDisc >= 0 ? 'discount of ' + pct(effDisc, 1)
+      : 'premium of ' + pct(-effDisc, 1)) + '. Holders take ' + pct(m.x) +
+      ' immediately before the new money, then the round dilutes them by ' + pct(m.dil, 1) + '.';
+
+    var capReq = p.amount * (1 - m.dil) / p.tgt;
+    var ratio = p.tgt * p.cap / p.amount;
+    var preTarget = ratio < 1 ? p.raise / (1 - ratio) - p.raise : Infinity;
+    var pivCap = p.disc >= 1 ? Infinity : p.cap / (1 - p.disc);
+    var pivFloor = p.disc >= 1 ? Infinity : p.floor / (1 - p.disc);
+    var low = p.amount / (p.cap + p.raise * (1 - p.disc));
+    document.getElementById('thresholds').innerHTML = [
+      ['Cap for the target', compact(capReq), 'Cap that lands exactly on ' + (p.tgt*100).toFixed(1) + '% at this round dilution.'],
+      ['Pre-money for the target', isFinite(preTarget) && preTarget > 0 ? compact(preTarget) : 'unreachable',
+        isFinite(preTarget) && preTarget > 0 ? 'At the current cap, the valuation that hits the target exactly.'
+        : 'The cap is too high for this target at this raise.'],
+      ['Cap pivot', isFinite(pivCap) ? compact(pivCap) : 'n/a', 'Above this the cap governs. Low point of the curve, at ' + pct(low, 2) + '.'],
+      ['Floor pivot', p.floor > 0 && isFinite(pivFloor) ? compact(pivFloor) : 'no floor',
+        p.floor > 0 ? 'Below this the floor governs and bounds investor ownership.' : 'Without a floor, a down round has no lower bound.']
+    ].map(function(c){
+      return '<div class="th-cell"><div class="k">' + c[0] + '</div><div class="v">' + c[1] +
+             '</div><div class="d">' + c[2] + '</div></div>';
+    }).join('');
+
+    document.getElementById('floorFlag').innerHTML = m.conv > m.pps + 1e-9
+      ? '<div class="flag"><b>The floor is binding against the investor.</b> Warrants convert at ' +
+        share(m.conv) + ' per share while the round prices at ' + share(m.pps) +
+        ' — the earlier investor pays more than the later one. Expect this to be negotiated: a carve-out ' +
+        'disapplying the floor below the round price is the usual answer.</div>'
+      : '';
+
+    var rows = [
+      ['Founders', p.fou, false],
+      ['Existing BSPCE', p.pl0, false],
+      ['BSA-AIR investors', m.airSh, true],
+      ['BSPCE increase', m.poolSh, false],
+      ['Round investors', m.newSh, false]
+    ];
+    document.getElementById('ctBody').innerHTML = rows.map(function(r, i){
+      var after = r[1] / m.total;
+      return '<tr' + (r[2] ? ' class="mark"' : '') + '><td>' + r[0] + '</td>' +
+        '<td>' + num0.format(Math.round(r[1])) + '</td>' +
+        '<td>' + (i === 4 ? '—' : pct(r[1] / m.CC)) + '</td>' +
+        '<td><span class="bar" style="width:' + Math.max(2, Math.round(after * 78)) + 'px"></span>' +
+        pct(after) + '</td></tr>';
+    }).join('');
+    document.getElementById('ctFoot').innerHTML =
+      '<tr><td>Total</td><td>' + num0.format(Math.round(m.total)) + '</td><td>100.00%</td><td>100.00%</td></tr>';
+    document.getElementById('ctHint').textContent =
+      'Round price ' + share(m.pps) + ' · cap price ' + share(m.capPrice) +
+      ' · discount price ' + share(m.discPrice) + ' · floor price ' + share(m.floorPrice) +
+      ' · conversion at ' + share(m.conv) + '.';
+
+    var base = isFinite(preTarget) && preTarget > 0 ? preTarget : p.pre;
+    document.getElementById('scBody').innerHTML = [0.3, 0.5, 0.8, 1.0, 1.2, 2.0].map(function(lv){
+      var pre = base * lv, post = pre + p.raise, own = ownership(pre, p), gov = regime(pre, p);
+      var ok = own >= p.tgt - p.tol - 1e-9 && own <= p.tgt + p.tol + 1e-9;
+      return '<tr' + (Math.abs(lv - 1) < 1e-9 ? ' class="mark"' : '') + '>' +
+        '<td>' + (lv*100).toFixed(0) + '% of target</td>' +
+        '<td>' + compact(pre) + '</td><td>' + compact(post) + '</td>' +
+        '<td>' + pct(p.raise / post, 1) + '</td>' +
+        '<td style="color:' + regimeVar(gov) + '">' + gov + '</td>' +
+        '<td style="color:' + (ok ? 'var(--good)' : 'var(--warn)') + ';font-weight:600">' + pct(own) + '</td></tr>';
+    }).join('');
+
+    draw();
+  }
+
+  ids.forEach(function(k){ el[k].addEventListener('input', render); });
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    ids.forEach(function(k){ el[k].value = DEF[k]; }); render();
+  });
+  window.addEventListener('resize', function(){ hoverX = null; tip.style.opacity = '0'; render(); });
+  render();
+})();
+</script>
+
+</body>
+</html>
